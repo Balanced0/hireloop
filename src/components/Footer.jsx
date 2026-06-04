@@ -23,7 +23,7 @@ const footerLinks = {
 
 export default function Footer() {
   return (
-    <footer className="w-full bg-black border-t border-white/5 pt-14 pb-8 px-4 min-h-screen">
+    <footer className="w-full bg-black border-t border-white/5 pt-14 pb-8 px-4">
       <div className="max-w-7xl mx-auto">
         {/* Top section */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-14">
