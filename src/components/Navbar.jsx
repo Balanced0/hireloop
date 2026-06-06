@@ -3,10 +3,21 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import logo from "@/assets/logo.png"
+import logo from "@/assets/logo.png";
+import { authClient } from "@/lib/auth-client";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+
+  const {
+    data: session,
+    isPending, //loading state
+    error, //error object
+  } = authClient.useSession();
+
+  const handleSignOut = async () => {
+    await authClient.signOut();
+  };
 
   return (
     <nav className="w-full container mx-auto sm:rounded-2xl bg-[#111318] border-b border-white/5 sticky top-0 sm:top-6 z-50">
@@ -40,19 +51,35 @@ export default function Navbar() {
 
             <div className="h-5 w-px bg-white/15" />
 
-            <Link
-              href="/signin"
-              className="text-sm text-[#818CF8] hover:text-[#a5b4fc] transition-colors duration-150 font-medium"
-            >
-              Sign In
-            </Link>
+            {session ? (
+              <>
+                <div className="text-sm text-[#818CF8] hover:text-[#a5b4fc] transition-colors duration-150 font-medium">
+                  {session.user.name}
+                </div>
+                <div
+                  onClick={handleSignOut}
+                  className="btn btn-sm bg-[#6366F1] hover:bg-[#4F46E5] border-none text-white text-sm font-semibold px-5 rounded-lg shadow-lg shadow-indigo-500/20 transition-all duration-150"
+                >
+                  Sign Out
+                </div>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/signin"
+                  className="text-sm text-[#818CF8] hover:text-[#a5b4fc] transition-colors duration-150 font-medium"
+                >
+                  Sign In
+                </Link>
 
-            <Link
-              href="/get-started"
-              className="btn btn-sm bg-[#6366F1] hover:bg-[#4F46E5] border-none text-white text-sm font-semibold px-5 rounded-lg shadow-lg shadow-indigo-500/20 transition-all duration-150"
-            >
-              Get Started
-            </Link>
+                <Link
+                  href="/get-started"
+                  className="btn btn-sm bg-[#6366F1] hover:bg-[#4F46E5] border-none text-white text-sm font-semibold px-5 rounded-lg shadow-lg shadow-indigo-500/20 transition-all duration-150"
+                >
+                  Get Started
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile hamburger */}
@@ -118,18 +145,35 @@ export default function Navbar() {
             Pricing
           </Link>
           <div className="h-px bg-white/10 my-1" />
-          <Link
-            href="/signin"
-            className="text-sm text-[#818CF8] hover:text-[#a5b4fc] py-2 font-medium"
-          >
-            Sign In
-          </Link>
-          <Link
-            href="/get-started"
-            className="btn bg-[#6366F1] hover:bg-[#4F46E5] border-none text-white text-sm font-semibold rounded-lg w-full"
-          >
-            Get Started
-          </Link>
+          {session ? (
+            <>
+              <div className="text-sm text-[#818CF8] hover:text-[#a5b4fc] py-2 font-medium">
+                {session.user.name}
+              </div>
+
+              <div
+                onClick={handleSignOut}
+                className="btn bg-[#6366F1] hover:bg-[#4F46E5] border-none text-white text-sm font-semibold rounded-lg w-full"
+              >
+                Sign Out
+              </div>
+            </>
+          ) : (
+            <>
+              <Link
+                href="/signin"
+                className="text-sm text-[#818CF8] hover:text-[#a5b4fc] py-2 font-medium"
+              >
+                Sign In
+              </Link>
+              <Link
+                href="/get-started"
+                className="btn bg-[#6366F1] hover:bg-[#4F46E5] border-none text-white text-sm font-semibold rounded-lg w-full"
+              >
+                Get Started
+              </Link>
+            </>
+          )}
         </div>
       )}
     </nav>

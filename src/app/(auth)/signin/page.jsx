@@ -54,7 +54,7 @@ export default function SignInPage() {
       await authClient.signIn.email({
         email,
         password,
-        callbackURL: "/dashboard",
+        callbackURL: "/",
       });
       show("Signed in successfully! Redirecting...", "success");
     } catch (err) {
@@ -69,7 +69,7 @@ export default function SignInPage() {
       setLoadingGoogle(true);
       await authClient.signIn.social({
         provider: "google",
-        callbackURL: "/dashboard",
+        callbackURL: "/",
       });
     } catch (err) {
       show(err?.message || "Failed to sign in with Google. Please try again.", "error");
