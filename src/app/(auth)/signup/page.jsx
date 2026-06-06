@@ -69,7 +69,7 @@ export default function SignUpPage() {
         name,
         email,
         password,
-        callbackURL: "/dashboard",
+        callbackURL: "/signin",
       });
       show("Account created! Redirecting...", "success");
     } catch (err) {
@@ -84,7 +84,7 @@ export default function SignUpPage() {
       setLoadingGoogle(true);
       await authClient.signIn.social({
         provider: "google",
-        callbackURL: "/dashboard",
+        callbackURL: "/",
       });
     } catch (err) {
       show(
