@@ -4,6 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
 import { Envelope, Lock, Eye, EyeSlash, CircleCheckFill, CircleInfoFill } from "@gravity-ui/icons";
+import Image from "next/image";
+import logo from "@/assets/logo.png"
 
 function useToast() {
   const [toast, setToast] = useState(null);
@@ -90,16 +92,7 @@ export default function SignInPage() {
           {/* Logo */}
           <div className="flex justify-center mb-8">
             <Link href="/" className="flex items-center gap-0.5 select-none">
-              <span className="text-[#3B82F6] font-extrabold text-2xl tracking-tight">hire</span>
-              <span className="inline-flex items-center">
-                <svg width="36" height="24" viewBox="0 0 36 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="-mx-0.5">
-                  <ellipse cx="10" cy="12" rx="8" ry="5" fill="#F97316" />
-                  <polygon points="2,12 -2,8 -2,16" fill="#F97316" />
-                  <circle cx="26" cy="12" r="7" stroke="#3B82F6" strokeWidth="3.5" fill="none" />
-                  <circle cx="26" cy="12" r="2.5" fill="#3B82F6" />
-                </svg>
-              </span>
-              <span className="text-[#3B82F6] font-extrabold text-2xl tracking-tight">p</span>
+              <Image src={logo} width={100} height={40} alt="logo"></Image>
             </Link>
           </div>
 
