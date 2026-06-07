@@ -1,11 +1,13 @@
+import RecruiterStats from '@/components/dashboard/RecruiterStats';
 import React from 'react';
 
-const RecruiterPage = () => {
+const RecruiterDashboardPage = () => {
     return (
         <div>
             I am a recruiter
+            <RecruiterStats></RecruiterStats>
         </div>
     );
 };
 
-export default RecruiterPage;
+export default RecruiterDashboardPage;
