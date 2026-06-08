@@ -17,7 +17,7 @@ import {
 
 const navItems = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutCells },
-  { label: "My Company", href: "/dashboard/company", icon: OfficeBadge },
+  { label: "My Company", href: "/dashboard/recruiter/company", icon: OfficeBadge },
   { label: "Manage Jobs", href: "/dashboard/jobs", icon: Briefcase },
   { label: "Applications", href: "/dashboard/applications", icon: LayoutList },
   { label: "Settings", href: "/dashboard/settings", icon: Gear },
