@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { createCompany } from "@/lib/api/companies";
 import {
   OfficeBadge,
   Plus,
@@ -127,14 +128,14 @@ function RegisterModal({ onClose, onSuccess }) {
     if (field === "logoUrl") setLogoError(false);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.name || !form.industry || !form.location) {
       alert("Please fill in all required fields.");
       return;
     }
     // TODO: wire up to backend later
-    console.log(form);
+    const payload = await createCompany(form);
     onSuccess(form);
   };
 
