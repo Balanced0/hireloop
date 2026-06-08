@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import {
   OfficeBadge,
@@ -8,11 +8,11 @@ import {
   Xmark,
   Globe,
   MapPin,
-  Link,
   ArrowUpFromSquare,
   ChevronDown,
   CircleCheckFill,
   CircleInfoFill,
+  Link,
 } from "@gravity-ui/icons";
 
 // ── Toast ─────────────────────────────────────────────────────────────────────
@@ -110,10 +110,8 @@ const EMPLOYEE_RANGES = [
 
 // ── Register Modal ─────────────────────────────────────────────────────────────
 function RegisterModal({ onClose, onSuccess }) {
-  const fileInputRef = useRef(null);
-  const [logoPreview, setLogoPreview] = useState(null);
-  const [logoFile, setLogoFile] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [logoError, setLogoError] = useState(false);
   const [form, setForm] = useState({
     name: "",
     industry: "Technology",
@@ -121,56 +119,34 @@ function RegisterModal({ onClose, onSuccess }) {
     location: "",
     employeeRange: "1-10 employees",
     description: "",
+    logoUrl: "",
   });
 
-  const set = (field) => (e) =>
+  const set = (field) => (e) => {
     setForm((prev) => ({ ...prev, [field]: e.target.value }));
-
-  const handleLogo = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
-      alert("File must be under 5MB.");
-      return;
-    }
-    setLogoFile(file);
-    setLogoPreview(URL.createObjectURL(file));
+    if (field === "logoUrl") setLogoError(false);
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     if (!form.name || !form.industry || !form.location) {
       alert("Please fill in all required fields.");
       return;
     }
-    try {
-      setLoading(true);
-      const data = new FormData();
-      Object.entries(form).forEach(([k, v]) => data.append(k, v));
-      if (logoFile) data.append("logo", logoFile);
-
-      const res = await fetch("/api/companies", { method: "POST", body: data });
-      if (!res.ok)
-        throw new Error(
-          (await res.json()).message || "Failed to register company.",
-        );
-      onSuccess();
-    } catch (err) {
-      alert(err.message);
-    } finally {
-      setLoading(false);
-    }
+    // TODO: wire up to backend later
+    console.log(form);
+    onSuccess(form);
   };
+
+  const logoPreview = form.logoUrl && !logoError ? form.logoUrl : null;
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/70 backdrop-blur-sm"
         onClick={onClose}
       />
 
-      {/* Modal */}
       <div className="relative z-10 w-full max-w-lg bg-[#0d0f13] border border-white/10 rounded-2xl shadow-2xl flex flex-col max-h-[90vh]">
         {/* Header */}
         <div className="px-6 pt-6 pb-5 border-b border-white/8">
@@ -239,7 +215,7 @@ function RegisterModal({ onClose, onSuccess }) {
               </div>
             </div>
 
-            {/* Employee count + Logo */}
+            {/* Employee count + Logo URL */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="flex flex-col gap-1.5">
                 <Label>Employee Count Range</Label>
@@ -257,38 +233,32 @@ function RegisterModal({ onClose, onSuccess }) {
 
               <div className="flex flex-col gap-1.5">
                 <Label>Company Logo</Label>
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="flex items-center gap-3 bg-[#1a1d24] border border-white/10 hover:border-white/20 rounded-xl px-3 py-2.5 transition-colors duration-150 w-full"
-                >
-                  <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
+                <div className="flex items-center gap-2">
+                  {/* Preview */}
+                  <div className="w-11 h-11 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
                     {logoPreview ? (
-                      <Image
+                      <img
                         src={logoPreview}
-                        alt="Logo"
-                        width={40}
-                        height={40}
-                        className="object-cover w-full h-full"
+                        alt="Logo preview"
+                        className="w-full h-full object-cover"
+                        onError={() => setLogoError(true)}
                       />
                     ) : (
-                      <ArrowUpFromSquare className="w-4 h-4 text-gray-500" />
+                      <Link className="w-4 h-4 text-gray-600" />
                     )}
                   </div>
-                  <div className="text-left">
-                    <p className="text-sm text-gray-300">
-                      {logoFile ? logoFile.name : "Upload image"}
-                    </p>
-                    <p className="text-xs text-gray-600">PNG, JPG up to 5MB</p>
-                  </div>
-                </button>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/png,image/jpeg,image/jpg"
-                  className="hidden"
-                  onChange={handleLogo}
-                />
+                  <Input
+                    className="flex-1"
+                    value={form.logoUrl}
+                    onChange={set("logoUrl")}
+                    placeholder="https://logo.url/image.png"
+                  />
+                </div>
+                {logoError && (
+                  <p className="text-xs text-red-400 mt-0.5">
+                    Couldn't load image — check the URL.
+                  </p>
+                )}
               </div>
             </div>
 
@@ -352,12 +322,10 @@ function CompanyCard({ company }) {
   return (
     <div className="bg-[#0d0f13] border border-white/8 rounded-2xl p-5 flex items-start gap-4">
       <div className="w-12 h-12 rounded-xl bg-[#6366F1]/10 border border-[#6366F1]/20 flex items-center justify-center shrink-0 overflow-hidden">
-        {company.logo ? (
-          <Image
-            src={company.logo}
+        {company.logoUrl ? (
+          <img
+            src={company.logoUrl}
             alt={company.name}
-            width={48}
-            height={48}
             className="object-cover w-full h-full"
           />
         ) : (
@@ -404,10 +372,13 @@ export default function CompanyPage({ initialCompanies = [] }) {
   const [companies, setCompanies] = useState(initialCompanies);
   const { toast, show } = useToast();
 
-  const handleSuccess = () => {
+  const handleSuccess = (newCompany) => {
     setModalOpen(false);
+    setCompanies((prev) => [
+      ...prev,
+      { ...newCompany, approved: false, rejected: false },
+    ]);
     show("Company registered! It will be reviewed shortly.", "success");
-    // Optionally re-fetch companies here
   };
 
   return (
