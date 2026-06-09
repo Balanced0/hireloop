@@ -1,6 +1,5 @@
-"use server"
-import {serverMutation} from "@/lib/core/server"
+import {serverFetch} from "@/lib/core/server"
 
-export const createCompany = async(newCompanyData) =>{
-    return serverMutation("api/companies", newCompanyData);
+const getRecruiterCompany = async(recruiterId)=>{
+    return serverFetch(`api/my/companies?recruiterId=${recruiterId}`);
 }

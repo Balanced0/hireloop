@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { createCompany } from "@/lib/api/companies";
+import { createCompany } from "@/lib/actions/companies";
 import {
   OfficeBadge,
   Plus,
