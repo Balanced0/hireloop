@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import { createCompany } from "@/lib/actions/companies";
 import {
   OfficeBadge,
@@ -9,11 +8,11 @@ import {
   Xmark,
   Globe,
   MapPin,
-  ArrowUpFromSquare,
   ChevronDown,
   CircleCheckFill,
   CircleInfoFill,
   Link,
+  Persons,
 } from "@gravity-ui/icons";
 
 // ── Toast ─────────────────────────────────────────────────────────────────────
@@ -134,15 +133,16 @@ function RegisterModal({ recruiter, onClose, onSuccess }) {
       alert("Please fill in all required fields.");
       return;
     }
-    // TODO: wire up to backend later
-    const payload = {
-      ...form,
-      recruiterId: recruiter.id,
-    };
-
-    const company = await createCompany(payload);
-
-    onSuccess(company);
+    try {
+      setLoading(true);
+      const payload = { ...form, recruiterId: recruiter.id };
+      const company = await createCompany(payload);
+      onSuccess(company);
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const logoPreview = form.logoUrl && !logoError ? form.logoUrl : null;
@@ -153,7 +153,6 @@ function RegisterModal({ recruiter, onClose, onSuccess }) {
         className="absolute inset-0 bg-black/70 backdrop-blur-sm"
         onClick={onClose}
       />
-
       <div className="relative z-10 w-full max-w-lg bg-[#0d0f13] border border-white/10 rounded-2xl shadow-2xl flex flex-col max-h-[90vh]">
         {/* Header */}
         <div className="px-6 pt-6 pb-5 border-b border-white/8">
@@ -178,7 +177,6 @@ function RegisterModal({ recruiter, onClose, onSuccess }) {
         {/* Body */}
         <form onSubmit={handleSubmit} className="overflow-y-auto flex-1">
           <div className="px-6 py-5 flex flex-col gap-4">
-            {/* Name + Industry */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="flex flex-col gap-1.5">
                 <Label>Company Name</Label>
@@ -200,7 +198,6 @@ function RegisterModal({ recruiter, onClose, onSuccess }) {
               </div>
             </div>
 
-            {/* Website + Location */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="flex flex-col gap-1.5">
                 <Label>Website URL</Label>
@@ -222,7 +219,6 @@ function RegisterModal({ recruiter, onClose, onSuccess }) {
               </div>
             </div>
 
-            {/* Employee count + Logo URL */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="flex flex-col gap-1.5">
                 <Label>Employee Count Range</Label>
@@ -237,11 +233,9 @@ function RegisterModal({ recruiter, onClose, onSuccess }) {
                   ))}
                 </Select>
               </div>
-
               <div className="flex flex-col gap-1.5">
                 <Label>Company Logo</Label>
                 <div className="flex items-center gap-2">
-                  {/* Preview */}
                   <div className="w-11 h-11 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
                     {logoPreview ? (
                       <img
@@ -255,7 +249,6 @@ function RegisterModal({ recruiter, onClose, onSuccess }) {
                     )}
                   </div>
                   <Input
-                    className="flex-1"
                     value={form.logoUrl}
                     onChange={set("logoUrl")}
                     placeholder="https://logo.url/image.png"
@@ -269,7 +262,6 @@ function RegisterModal({ recruiter, onClose, onSuccess }) {
               </div>
             </div>
 
-            {/* Description */}
             <div className="flex flex-col gap-1.5">
               <Label>Brief Description</Label>
               <textarea
@@ -282,7 +274,6 @@ function RegisterModal({ recruiter, onClose, onSuccess }) {
             </div>
           </div>
 
-          {/* Footer */}
           <div className="px-6 py-4 border-t border-white/8 flex items-center justify-end gap-3">
             <button
               type="button"
@@ -312,7 +303,7 @@ function RegisterModal({ recruiter, onClose, onSuccess }) {
 function CompanyCard({ company }) {
   const statusStyles = {
     approved: "text-green-400 bg-green-400/10 border-green-400/20",
-    pending: "text-yellow-400 bg-yellow-400/10 border-yellow-400/20",
+    pending: "text-yellow-500 bg-yellow-500/10 border-yellow-500/20",
     rejected: "text-red-400 bg-red-400/10 border-red-400/20",
   };
   const status = company.approved
@@ -321,68 +312,90 @@ function CompanyCard({ company }) {
       ? "rejected"
       : "pending";
   const statusLabel = {
-    approved: "Approved",
-    pending: "Pending Review",
-    rejected: "Rejected",
+    approved: "APPROVED",
+    pending: "PENDING",
+    rejected: "REJECTED",
   }[status];
 
   return (
-    <div className="bg-[#0d0f13] border border-white/8 rounded-2xl p-5 flex items-start gap-4">
-      <div className="w-12 h-12 rounded-xl bg-[#6366F1]/10 border border-[#6366F1]/20 flex items-center justify-center shrink-0 overflow-hidden">
-        {company.logoUrl ? (
-          <img
-            src={company.logoUrl}
-            alt={company.name}
-            className="object-cover w-full h-full"
-          />
-        ) : (
-          <OfficeBadge className="w-5 h-5 text-[#818CF8]" />
-        )}
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 flex-wrap">
-          <h3 className="text-sm font-semibold text-white">{company.name}</h3>
-          <span
-            className={`text-[11px] font-medium px-2 py-0.5 rounded-md border ${statusStyles[status]}`}
-          >
-            {statusLabel}
-          </span>
+    <div className="bg-[#0d0f13] border border-white/8 rounded-2xl p-5 flex flex-col gap-4">
+      {/* Top row */}
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
+            {company.logoUrl ? (
+              <img
+                src={company.logoUrl}
+                alt={company.name}
+                className="object-cover w-full h-full"
+              />
+            ) : (
+              <OfficeBadge className="w-5 h-5 text-[#818CF8]" />
+            )}
+          </div>
+          <div>
+            <h3 className="text-base font-semibold text-white">
+              {company.name}
+            </h3>
+            <p className="text-xs text-gray-500">{company.industry}</p>
+          </div>
         </div>
-        <p className="text-xs text-gray-500 mt-0.5">
-          {company.industry} · {company.location}
-        </p>
-        {company.website && (
-          <a
-            href={`https://${company.website}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-xs text-[#818CF8] hover:text-[#a5b4fc] mt-1 transition-colors"
-          >
-            <Globe className="w-3 h-3" />
-            {company.website}
-          </a>
-        )}
+        <span
+          className={`text-[10px] font-bold tracking-widest px-2.5 py-1 rounded-full border shrink-0 ${statusStyles[status]}`}
+        >
+          {statusLabel}
+        </span>
       </div>
-      <div className="text-right shrink-0">
-        <p className="text-xs text-gray-500">{company.plan ?? "Free"} plan</p>
-        <p className="text-xs text-gray-600 mt-0.5">
-          {company.activeJobs ?? 0} / {company.jobLimit ?? 3} jobs
-        </p>
+
+      {/* Description */}
+      <p className="text-sm text-gray-400 leading-relaxed line-clamp-3">
+        {company.description || "No description provided."}
+      </p>
+
+      <div className="h-px bg-white/5" />
+
+      {/* Location + Employees */}
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-gray-400">
+        <span className="flex items-center gap-1.5">
+          <MapPin className="w-3.5 h-3.5 text-gray-600" />
+          {company.location || "—"}
+        </span>
+        <span className="flex items-center gap-1.5">
+          <Persons className="w-3.5 h-3.5 text-gray-600" />
+          {company.employeeRange || "—"}
+        </span>
       </div>
+
+      <div className="h-px bg-white/5" />
+
+      {/* Website */}
+      {company.website ? (
+        <a
+          href={`https://${company.website}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 text-xs text-gray-400 hover:text-white transition-colors duration-150"
+        >
+          <Globe className="w-3.5 h-3.5" />
+          Visit Website
+        </a>
+      ) : (
+        <span className="text-xs text-gray-600">No website</span>
+      )}
     </div>
   );
 }
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
-export default function CompanyPage({ initialCompanies = [], recruiter }) {
+export default function CompanyPage({ recruiter, recruiterCompany }) {
   const [modalOpen, setModalOpen] = useState(false);
-  const [companies, setCompanies] = useState(initialCompanies);
+  const [companies, setCompanies] = useState(recruiterCompany ?? []);
   const { toast, show } = useToast();
 
   const handleSuccess = (newCompany) => {
     setModalOpen(false);
     setCompanies((prev) => [
-      ...prev,
+      ...(Array.isArray(prev) ? prev : []),
       { ...newCompany, approved: false, rejected: false },
     ]);
     show("Company registered! It will be reviewed shortly.", "success");
@@ -417,9 +430,9 @@ export default function CompanyPage({ initialCompanies = [], recruiter }) {
           </button>
         </div>
 
-        {/* Company list */}
+        {/* Company grid */}
         {companies.length > 0 ? (
-          <div className="flex flex-col gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
             {companies.map((c, i) => (
               <CompanyCard key={c._id ?? i} company={c} />
             ))}
