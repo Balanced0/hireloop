@@ -1,5 +1,5 @@
-import JobCard from "@/components/jobs/JobCard";
 import { getAllJobs } from "@/lib/api/jobs";
+import JobsFilter from "@/components/jobs/Jobsfilter";
 
 export default async function JobsPage() {
   const jobs = await getAllJobs();
@@ -17,20 +17,8 @@ export default async function JobsPage() {
           </p>
         </div>
 
-        {/* Grid */}
-        {jobs && jobs.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-            {jobs.map((job) => (
-              <JobCard key={job._id?.$oid ?? job._id} job={job} />
-            ))}
-          </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center py-24 text-center">
-            <p className="text-gray-500 text-sm">
-              No jobs available at the moment. Check back soon!
-            </p>
-          </div>
-        )}
+        {/* Filter + Grid */}
+        <JobsFilter jobs={jobs ?? []} />
       </div>
     </div>
   );
