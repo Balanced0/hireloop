@@ -184,9 +184,9 @@ const page = async ({ params }) => {
                 </p>
               </div>
 
-              <button className="w-full py-3 rounded-xl bg-violet-600 hover:bg-violet-500 active:bg-violet-700 transition-colors text-sm font-semibold text-white mb-3">
+              <Link href={`/jobs/${id}/apply`} className="btn w-full py-3 rounded-xl bg-violet-600 hover:bg-violet-500 active:bg-violet-700 transition-colors text-sm font-semibold text-white mb-3">
                 Apply Now
-              </button>
+              </Link>
               <button className="w-full py-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors text-sm font-medium text-white/70 border border-white/10">
                 Save Job
               </button>
