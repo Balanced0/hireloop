@@ -16,6 +16,7 @@ import {
   PersonWorker,
   PersonMagnifier,
 } from "@gravity-ui/icons";
+import { useSearchParams } from "next/navigation";
 
 function useToast() {
   const [toast, setToast] = useState(null);
@@ -32,9 +33,10 @@ function Toast({ toast }) {
   return (
     <div
       className={`fixed top-6 right-6 z-[100] flex items-center gap-3 px-4 py-3 rounded-xl shadow-2xl border text-sm font-medium max-w-sm
-        ${isSuccess
-          ? "bg-[#0d1f14] border-green-500/30 text-green-400"
-          : "bg-[#1f0d0d] border-red-500/30 text-red-400"
+        ${
+          isSuccess
+            ? "bg-[#0d1f14] border-green-500/30 text-green-400"
+            : "bg-[#1f0d0d] border-red-500/30 text-red-400"
         }`}
     >
       {isSuccess ? (
@@ -71,6 +73,8 @@ export default function SignUpPage() {
   const [loadingEmail, setLoadingEmail] = useState(false);
   const [loadingGoogle, setLoadingGoogle] = useState(false);
   const { toast, show } = useToast();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("redirect") || "/";
 
   const handleSignUp = async (e) => {
     e.preventDefault();
@@ -104,10 +108,13 @@ export default function SignUpPage() {
       setLoadingGoogle(true);
       await authClient.signIn.social({
         provider: "google",
-        callbackURL: "/",
+        callbackURL: redirectTo,
       });
     } catch (err) {
-      show(err?.message || "Failed to sign in with Google. Please try again.", "error");
+      show(
+        err?.message || "Failed to sign in with Google. Please try again.",
+        "error",
+      );
     } finally {
       setLoadingGoogle(false);
     }
@@ -134,8 +141,12 @@ export default function SignUpPage() {
           {/* Card */}
           <div className="bg-[#0d0f13] border border-white/8 rounded-2xl p-8 shadow-2xl">
             <div className="text-center mb-8">
-              <h1 className="text-2xl font-bold text-white mb-2">Create your account</h1>
-              <p className="text-sm text-gray-500">Start your career journey with HireLoop</p>
+              <h1 className="text-2xl font-bold text-white mb-2">
+                Create your account
+              </h1>
+              <p className="text-sm text-gray-500">
+                Start your career journey with HireLoop
+              </p>
             </div>
 
             {/* Google SSO */}
@@ -147,11 +158,28 @@ export default function SignUpPage() {
               {loadingGoogle ? (
                 <span className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />
               ) : (
-                <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
-                  <path d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#34A853"/>
-                  <path d="M3.964 10.706A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.706V4.962H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.038l3.007-2.332z" fill="#FBBC05"/>
-                  <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.962L3.964 7.294C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 18 18"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"
+                    fill="#4285F4"
+                  />
+                  <path
+                    d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"
+                    fill="#34A853"
+                  />
+                  <path
+                    d="M3.964 10.706A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.706V4.962H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.038l3.007-2.332z"
+                    fill="#FBBC05"
+                  />
+                  <path
+                    d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.962L3.964 7.294C4.672 5.163 6.656 3.58 9 3.58z"
+                    fill="#EA4335"
+                  />
                 </svg>
               )}
               Continue with Google
@@ -160,16 +188,19 @@ export default function SignUpPage() {
             {/* Divider */}
             <div className="flex items-center gap-3 my-6">
               <div className="flex-1 h-px bg-white/8" />
-              <span className="text-xs text-gray-600">or sign up with email</span>
+              <span className="text-xs text-gray-600">
+                or sign up with email
+              </span>
               <div className="flex-1 h-px bg-white/8" />
             </div>
 
             {/* Form */}
             <form onSubmit={handleSignUp} className="flex flex-col gap-4">
-
               {/* Role selector */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium text-gray-400">I am a...</label>
+                <label className="text-xs font-medium text-gray-400">
+                  I am a...
+                </label>
                 <div className="grid grid-cols-2 gap-2">
                   {roles.map(({ value, label, desc, icon: Icon }) => {
                     const selected = role === value;
@@ -179,22 +210,30 @@ export default function SignUpPage() {
                         type="button"
                         onClick={() => setRole(value)}
                         className={`flex flex-col items-start gap-1.5 p-3 rounded-xl border text-left transition-all duration-150
-                          ${selected
-                            ? "bg-[#6366F1]/10 border-[#6366F1] text-white"
-                            : "bg-[#13151a] border-white/10 hover:border-white/20 text-gray-400"
+                          ${
+                            selected
+                              ? "bg-[#6366F1]/10 border-[#6366F1] text-white"
+                              : "bg-[#13151a] border-white/10 hover:border-white/20 text-gray-400"
                           }`}
                       >
                         <div className="flex items-center gap-2 w-full">
-                          <Icon className={`w-4 h-4 shrink-0 ${selected ? "text-[#818CF8]" : "text-gray-600"}`} />
+                          <Icon
+                            className={`w-4 h-4 shrink-0 ${selected ? "text-[#818CF8]" : "text-gray-600"}`}
+                          />
                           <span className="text-xs font-semibold">{label}</span>
                           {/* Radio dot */}
-                          <div className={`ml-auto w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center shrink-0
+                          <div
+                            className={`ml-auto w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center shrink-0
                             ${selected ? "border-[#6366F1]" : "border-white/20"}`}
                           >
-                            {selected && <div className="w-1.5 h-1.5 rounded-full bg-[#6366F1]" />}
+                            {selected && (
+                              <div className="w-1.5 h-1.5 rounded-full bg-[#6366F1]" />
+                            )}
                           </div>
                         </div>
-                        <span className="text-[11px] text-gray-600 leading-tight">{desc}</span>
+                        <span className="text-[11px] text-gray-600 leading-tight">
+                          {desc}
+                        </span>
                       </button>
                     );
                   })}
@@ -203,7 +242,9 @@ export default function SignUpPage() {
 
               {/* Name */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium text-gray-400">Full Name</label>
+                <label className="text-xs font-medium text-gray-400">
+                  Full Name
+                </label>
                 <div className="relative">
                   <Person className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600" />
                   <input
@@ -218,7 +259,9 @@ export default function SignUpPage() {
 
               {/* Email */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium text-gray-400">Email</label>
+                <label className="text-xs font-medium text-gray-400">
+                  Email
+                </label>
                 <div className="relative">
                   <Envelope className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600" />
                   <input
@@ -233,7 +276,9 @@ export default function SignUpPage() {
 
               {/* Password */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium text-gray-400">Password</label>
+                <label className="text-xs font-medium text-gray-400">
+                  Password
+                </label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600" />
                   <input
@@ -248,12 +293,20 @@ export default function SignUpPage() {
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-400 transition-colors"
                   >
-                    {showPassword ? <EyeSlash className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    {showPassword ? (
+                      <EyeSlash className="w-4 h-4" />
+                    ) : (
+                      <Eye className="w-4 h-4" />
+                    )}
                   </button>
                 </div>
                 {password.length > 0 && (
-                  <p className={`text-xs mt-0.5 ${password.length >= 8 ? "text-green-500" : "text-red-400"}`}>
-                    {password.length >= 8 ? "✓ Strong enough" : `${8 - password.length} more characters needed`}
+                  <p
+                    className={`text-xs mt-0.5 ${password.length >= 8 ? "text-green-500" : "text-red-400"}`}
+                  >
+                    {password.length >= 8
+                      ? "✓ Strong enough"
+                      : `${8 - password.length} more characters needed`}
                   </p>
                 )}
               </div>
@@ -274,7 +327,10 @@ export default function SignUpPage() {
             {/* Sign in */}
             <p className="text-center text-sm text-gray-500 mt-6">
               Already have an account?{" "}
-              <Link href="/signin" className="text-[#818CF8] hover:text-[#a5b4fc] font-medium transition-colors duration-150">
+              <Link
+                href="/signin"
+                className="text-[#818CF8] hover:text-[#a5b4fc] font-medium transition-colors duration-150"
+              >
                 Sign in
               </Link>
             </p>
@@ -283,9 +339,19 @@ export default function SignUpPage() {
           {/* Terms */}
           <p className="text-center text-xs text-gray-600 mt-5">
             By creating an account, you agree to our{" "}
-            <Link href="/terms" className="underline hover:text-gray-400 transition-colors">Terms</Link>{" "}
+            <Link
+              href="/terms"
+              className="underline hover:text-gray-400 transition-colors"
+            >
+              Terms
+            </Link>{" "}
             and{" "}
-            <Link href="/privacy" className="underline hover:text-gray-400 transition-colors">Privacy Policy</Link>
+            <Link
+              href="/privacy"
+              className="underline hover:text-gray-400 transition-colors"
+            >
+              Privacy Policy
+            </Link>
           </p>
         </div>
       </div>
